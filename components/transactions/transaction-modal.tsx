@@ -12,7 +12,7 @@ import {
   DEFAULT_INCOME_CATEGORIES,
   PAYMENT_METHODS,
 } from "@/lib/constants";
-import type { Transaction, TransactionType, PaymentMethod } from "@/types";
+import type { Transaction, TransactionType, PaymentMethod, Client } from "@/types";
 
 interface TransactionModalProps {
   transaction?: Transaction | null;
@@ -29,12 +29,30 @@ export function TransactionModal({ transaction, onClose }: TransactionModalProps
     category: transaction?.category || "",
     description: transaction?.description || "",
     paymentMethod: (transaction?.paymentMethod || "cash") as PaymentMethod,
+    clientId: transaction?.clientId || "",
     notes: transaction?.notes || "",
     tags: transaction?.tags?.join(", ") || "",
   });
 
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Fetch clients on mount
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const response = await fetch("/api/clients");
+        const data = await response.json();
+        if (data.success) {
+          setClients(data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching clients:", error);
+      }
+    };
+    fetchClients();
+  }, []);
 
   const categories =
     formData.type === "income"
@@ -73,6 +91,7 @@ export function TransactionModal({ transaction, onClose }: TransactionModalProps
         category: formData.category,
         description: formData.description.trim(),
         paymentMethod: formData.paymentMethod,
+        clientId: formData.clientId || undefined,
         notes: formData.notes.trim() || undefined,
         tags: formData.tags
           ? formData.tags.split(",").map((t) => t.trim()).filter(Boolean)
@@ -231,6 +250,25 @@ export function TransactionModal({ transaction, onClose }: TransactionModalProps
                   {PAYMENT_METHODS.map((method) => (
                     <option key={method.value} value={method.value}>
                       {method.label}
+                    </option>
+                  ))}
+                </Select>
+              </div>
+
+              {/* Client/Vendor */}
+              <div>
+                <Label htmlFor="clientId">Client / Vendor (Optional)</Label>
+                <Select
+                  id="clientId"
+                  name="clientId"
+                  value={formData.clientId}
+                  onChange={handleChange}
+                  className="mt-1"
+                >
+                  <option value="">None</option>
+                  {clients.map((client) => (
+                    <option key={client.id} value={client.id}>
+                      {client.name}
                     </option>
                   ))}
                 </Select>
