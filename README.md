@@ -4,40 +4,82 @@ A comprehensive business finance tracking application with Google Sheets integra
 
 ## Features
 
-### Current Features (Phase 1-2 Complete)
-- ✅ Modern Next.js 14+ project structure
-- ✅ TypeScript for type safety and comprehensive data models
-- ✅ Tailwind CSS for responsive design
-- ✅ ESLint configuration
-- ✅ NextAuth.js v5 with Google OAuth authentication
-- ✅ Google Sheets API integration layer
-- ✅ Complete TypeScript interfaces for all data models
-- ✅ Utility functions for formatting, dates, and calculations
-- ✅ Protected routes with middleware
-- ✅ Beautiful sign-in page
-- ✅ Comprehensive setup guide (SETUP-GUIDE.md)
+### ✅ Completed Features (Phase 1-7)
 
-### Planned Features
-- 🔄 **Transaction Management** - Track income and expenses with detailed categorization
-- 🔄 **Client/Vendor Database** - Manage business relationships and contacts
-- 🔄 **Invoice Tracking** - Monitor invoice status, due dates, and payments
-- 🔄 **Document Management** - Upload and attach receipts/invoices via Google Drive
-- 🔄 **Analytics Dashboard** - Visualize financial data with charts and insights
-- 🔄 **Google Sheets Integration** - Automatic sync with Google Sheets for data storage
-- 🔄 **Multi-User Support** - Role-based access (Admin, Editor, Viewer)
-- 🔄 **Recurring Transactions** - Automate regular income/expense entries
-- 🔄 **PDF Generation** - Create professional invoices as PDFs
-- 🔄 **Export Functionality** - Export data to CSV/Excel
+#### Authentication & Security
+- ✅ NextAuth.js v5 with Google OAuth authentication
+- ✅ Protected routes with middleware
+- ✅ Simplified OAuth-only approach (no service account needed)
+- ✅ Secure session management
+
+#### Transaction Management
+- ✅ Create, read, update, and delete transactions
+- ✅ Income and expense tracking
+- ✅ Multiple categories (income & expense)
+- ✅ Payment method tracking (cash, credit card, bank transfer, etc.)
+- ✅ Client/vendor linking to transactions
+- ✅ Tags and notes support
+- ✅ Advanced filtering with date ranges, categories, payment methods, and amount ranges
+- ✅ CSV export with filtering options
+- ✅ Real-time transaction statistics
+- ✅ Search functionality
+
+#### Client & Vendor Management
+- ✅ Complete client/vendor database
+- ✅ Full contact information (name, email, phone, address)
+- ✅ Client vs vendor differentiation
+- ✅ Tax ID tracking
+- ✅ Client statistics and metrics
+- ✅ Search and filter capabilities
+
+#### Invoice System
+- ✅ Professional invoice creation and editing
+- ✅ Automatic invoice numbering (INV-YEAR-####)
+- ✅ Dynamic line items with real-time calculations
+- ✅ Tax calculation support
+- ✅ Invoice status tracking (draft, sent, paid, overdue, cancelled)
+- ✅ Automatic overdue detection
+- ✅ Payment tracking with balance due
+- ✅ PDF generation for invoices
+- ✅ CSV export
+- ✅ Invoice statistics dashboard
+
+#### Analytics & Dashboard
+- ✅ Interactive dashboard with real-time data
+- ✅ Income vs expenses line chart
+- ✅ Category breakdown pie chart
+- ✅ Recent transactions widget
+- ✅ Top clients by revenue
+- ✅ Upcoming invoices tracker
+- ✅ Key financial metrics
+- ✅ Month-over-month growth tracking
+- ✅ Overdue invoice alerts
+
+#### User Experience
+- ✅ Responsive design for all screen sizes
+- ✅ Toast notifications for all actions
+- ✅ Loading states and skeletons
+- ✅ Error handling with user-friendly messages
+- ✅ Modern, clean UI with Tailwind CSS
+- ✅ Intuitive navigation with sidebar
+- ✅ Modal-based forms for better UX
+
+#### Data Management
+- ✅ Google Sheets API integration for data storage
+- ✅ CSV export functionality
+- ✅ PDF invoice generation
+- ✅ Advanced filtering and search
+- ✅ Real-time data updates
 
 ## Tech Stack
 
 - **Frontend**: Next.js 14+ (App Router), React 19, TypeScript
 - **Styling**: Tailwind CSS 4
 - **Database**: Google Sheets API
-- **File Storage**: Google Drive API
 - **Authentication**: NextAuth.js v5 with Google OAuth
 - **Charts**: Recharts
-- **PDF Generation**: jsPDF or react-pdf (to be implemented)
+- **PDF Generation**: jsPDF
+- **Toast Notifications**: react-hot-toast
 - **Date Utilities**: date-fns
 - **Icons**: Lucide React
 - **Deployment**: Vercel
@@ -46,23 +88,44 @@ A comprehensive business finance tracking application with Google Sheets integra
 
 ```
 finance-tracker/
-├── app/                      # Next.js App Router
-│   ├── api/                  # API routes
-│   ├── dashboard/            # Dashboard pages
-│   ├── transactions/         # Transaction management
-│   ├── clients/              # Client/vendor management
-│   ├── invoices/             # Invoice tracking
-│   ├── settings/             # App settings
-│   ├── layout.tsx            # Root layout
-│   ├── page.tsx              # Home page
-│   └── globals.css           # Global styles
-├── components/               # Reusable React components
-├── lib/                      # Utility libraries
-│   ├── google-sheets.ts      # Google Sheets API client
-│   └── auth.ts               # NextAuth configuration
-├── utils/                    # Helper functions
-├── public/                   # Static assets
-└── types/                    # TypeScript type definitions
+├── app/                          # Next.js App Router
+│   ├── api/                      # API routes
+│   │   ├── analytics/            # Analytics endpoint
+│   │   ├── auth/                 # NextAuth routes
+│   │   ├── clients/              # Client CRUD
+│   │   ├── invoices/             # Invoice CRUD
+│   │   ├── transactions/         # Transaction CRUD
+│   │   └── export/               # CSV export endpoints
+│   ├── auth/                     # Authentication pages
+│   ├── clients/                  # Client management UI
+│   ├── dashboard/                # Dashboard with analytics
+│   ├── invoices/                 # Invoice management UI
+│   ├── transactions/             # Transaction management UI
+│   ├── layout.tsx                # Root layout
+│   ├── page.tsx                  # Landing page
+│   └── globals.css               # Global styles
+├── components/                   # Reusable React components
+│   ├── clients/                  # Client components
+│   ├── dashboard/                # Dashboard widgets
+│   ├── invoices/                 # Invoice components
+│   ├── layout/                   # Layout components
+│   ├── transactions/             # Transaction components
+│   └── ui/                       # UI primitives
+├── lib/                          # Utility libraries
+│   ├── auth.ts                   # NextAuth configuration
+│   ├── constants.ts              # App constants
+│   ├── google-sheets.ts          # Google Sheets API client
+│   ├── pdf.ts                    # PDF generation utilities
+│   ├── utils.ts                  # Helper functions
+│   └── services/                 # Service layer
+│       ├── clients.ts            # Client business logic
+│       ├── invoices.ts           # Invoice business logic
+│       └── transactions.ts       # Transaction business logic
+├── types/                        # TypeScript definitions
+│   └── index.ts                  # All type definitions
+├── middleware.ts                 # Route protection
+├── .env.example                  # Environment variables template
+└── SETUP-GUIDE.md               # Detailed setup instructions
 ```
 
 ## Prerequisites
@@ -74,7 +137,7 @@ Before you begin, ensure you have:
 - A Google account
 - Basic knowledge of React and Next.js
 
-## Setup Instructions
+## Quick Start
 
 ### 1. Install Dependencies
 
@@ -83,58 +146,15 @@ cd finance-tracker
 npm install
 ```
 
-### 2. Set Up Google Cloud Project (Required for Phase 2+)
+### 2. Set Up Google Cloud Project
 
-#### Step 1: Create a Google Cloud Project
-1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-2. Click "Create Project" and give it a name (e.g., "Finance Tracker")
-3. Wait for project creation to complete
+Follow the detailed instructions in `SETUP-GUIDE.md` to:
+1. Create a Google Cloud Project
+2. Enable Google Sheets API
+3. Set up OAuth 2.0 credentials
+4. Create a Google Sheet for data storage
 
-#### Step 2: Enable Required APIs
-1. In your Google Cloud Project, go to "APIs & Services" > "Library"
-2. Search for and enable the following APIs:
-   - **Google Sheets API**
-   - **Google Drive API**
-   - **Google People API** (for user info)
-
-#### Step 3: Create OAuth 2.0 Credentials (for NextAuth)
-1. Go to "APIs & Services" > "Credentials"
-2. Click "Create Credentials" > "OAuth client ID"
-3. Configure consent screen if prompted:
-   - User Type: External
-   - App name: Finance Tracker
-   - User support email: your email
-   - Developer contact: your email
-4. Application type: Web application
-5. Name: Finance Tracker Web Client
-6. Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google`
-7. Click "Create" and save the **Client ID** and **Client Secret**
-
-#### Step 4: Create Service Account (for Google Sheets API)
-1. Go to "APIs & Services" > "Credentials"
-2. Click "Create Credentials" > "Service Account"
-3. Service account name: finance-tracker-service
-4. Click "Create and Continue"
-5. Grant role: "Editor" (or custom role with Sheets access)
-6. Click "Done"
-7. Click on the created service account
-8. Go to "Keys" tab > "Add Key" > "Create New Key"
-9. Choose JSON format and download the key file
-10. Save the **service account email** and **private key** from the JSON file
-
-#### Step 5: Create Google Sheet
-1. Go to [Google Sheets](https://sheets.google.com/)
-2. Create a new spreadsheet named "Finance Tracker Database"
-3. Share the sheet with your **service account email** (with Editor access)
-4. Copy the **Spreadsheet ID** from the URL:
-   - URL format: `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`
-
-#### Step 6: Create Google Drive Folder (for document uploads)
-1. Go to [Google Drive](https://drive.google.com/)
-2. Create a new folder named "Finance Tracker Documents"
-3. Share the folder with your **service account email** (with Editor access)
-4. Copy the **Folder ID** from the URL:
-   - URL format: `https://drive.google.com/drive/folders/FOLDER_ID`
+**Note**: This project uses a simplified OAuth-only approach. You do NOT need a service account.
 
 ### 3. Configure Environment Variables
 
@@ -143,23 +163,17 @@ npm install
    cp .env.example .env
    ```
 
-2. Fill in the values in `.env`:
+2. Fill in the required values:
    ```env
-   # From OAuth 2.0 Client
+   # OAuth 2.0 Client (from Google Cloud Console)
    GOOGLE_CLIENT_ID=your_client_id_here
    GOOGLE_CLIENT_SECRET=your_client_secret_here
 
-   # From Service Account JSON
-   GOOGLE_SERVICE_ACCOUNT_EMAIL=your_service_account_email_here
-   GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-
-   # From Google Sheets
+   # Google Sheets (create a new Google Sheet and copy its ID from URL)
    GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id_here
 
-   # From Google Drive
-   GOOGLE_DRIVE_FOLDER_ID=your_folder_id_here
-
-   # Generate a random secret: openssl rand -base64 32
+   # NextAuth Configuration
+   # Generate with: openssl rand -base64 32
    NEXTAUTH_SECRET=your_generated_secret_here
    NEXTAUTH_URL=http://localhost:3000
    ```
@@ -172,80 +186,146 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Development Workflow
+### 5. First-Time Setup
 
-### Available Scripts
+1. Sign in with your Google account
+2. The app will automatically create the necessary sheets in your Google Spreadsheet
+3. Start adding transactions, clients, and invoices!
 
-- `npm run dev` - Start development server
+## Available Scripts
+
+- `npm run dev` - Start development server (http://localhost:3000)
 - `npm run build` - Build for production
 - `npm run start` - Start production server
 - `npm run lint` - Run ESLint
 
-### Git Workflow
+## Features Guide
 
-This project uses clear commit messages at each milestone:
+### Transaction Management
 
-```bash
-git add .
-git commit -m "Phase 1: Initial project setup with Next.js and Tailwind"
-```
+**Location**: `/transactions`
+
+- **Add Transaction**: Click the "Add Transaction" button to create income or expense entries
+- **Edit/Delete**: Use the action buttons on each transaction row
+- **Filter**: Click "Filters" to filter by date range, type, category, payment method, client, and amount
+- **Export**: Click "Export" to download transactions as CSV
+- **Search**: Use the search bar to find transactions by description, category, or amount
+
+### Client Management
+
+**Location**: `/clients`
+
+- **Add Client**: Click "Add Client" to create a new client or vendor
+- **Client Types**: Differentiate between clients and vendors
+- **Full Contact Info**: Store email, phone, address, and tax ID
+- **Search**: Find clients by name, email, phone, or tax ID
+
+### Invoice Management
+
+**Location**: `/invoices`
+
+- **Create Invoice**: Click "Create Invoice" to generate a new invoice
+- **Line Items**: Add multiple line items with automatic total calculation
+- **Tax Support**: Configure tax rate for automatic tax calculation
+- **Status Tracking**: Track invoice status (draft, sent, paid, overdue, cancelled)
+- **PDF Download**: Download professional PDF invoices with the download button
+- **Export**: Export all invoices to CSV
+
+### Dashboard & Analytics
+
+**Location**: `/dashboard`
+
+- **Financial Overview**: View total income, expenses, net balance, and overdue invoices
+- **Charts**: Visualize income vs expenses trends and category breakdowns
+- **Recent Activity**: See recent transactions and top clients
+- **Upcoming Invoices**: Track invoices due in the next 30 days
+- **Growth Metrics**: Monitor month-over-month growth
+
+## Google Sheets Structure
+
+The app automatically creates the following sheets in your Google Spreadsheet:
+
+### Transactions Sheet
+Columns: ID, Type, Amount, Date, Category, Description, Payment Method, Client ID, Tags, Notes, Is Recurring, Created By, Created At, Updated At
+
+### Clients Sheet
+Columns: ID, Name, Email, Phone, Address, City, State, Zip, Country, Tax ID, Type, Notes, Created By, Created At, Updated At
+
+### Invoices Sheet
+Columns: ID, Invoice Number, Client ID, Issue Date, Due Date, Status, Subtotal, Tax Rate, Tax, Total, Paid Amount, Balance Due, Notes, Terms, Created By, Created At, Updated At
+
+### Invoice Items Sheet
+Columns: ID, Invoice ID, Description, Quantity, Rate, Amount
+
+## Multi-User Support
+
+This application supports multiple users through Google OAuth:
+
+1. Each user signs in with their Google account
+2. Users share access to the same Google Spreadsheet
+3. All users can view and modify data (role-based access control can be added in future phases)
+4. User email is tracked in "Created By" fields
 
 ## Deployment
 
 ### Deploy to Vercel (Recommended)
 
 1. Push your code to GitHub
-2. Go to [Vercel](https://vercel.com)
-3. Click "Import Project"
-4. Select your GitHub repository
-5. Add environment variables from your `.env` file
-6. Click "Deploy"
+2. Go to [Vercel](https://vercel.com) and import your repository
+3. Add environment variables:
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `GOOGLE_SHEETS_SPREADSHEET_ID`
+   - `NEXTAUTH_SECRET`
+   - `NEXTAUTH_URL` (set to your production domain)
+4. Click "Deploy"
 
-### Environment Variables on Vercel
+### Important Deployment Notes
 
-Make sure to add all environment variables from `.env` in Vercel's project settings under "Environment Variables".
+- Update `NEXTAUTH_URL` to your production domain
+- Add your production domain to Google OAuth authorized redirect URIs
+- Share your Google Spreadsheet with all users who need access
 
 ## Development Phases
 
 - ✅ **Phase 1**: Project setup and structure
 - ✅ **Phase 2**: Authentication & data models
-- 🔄 **Phase 3**: Transaction management UI
-- 🔄 **Phase 4**: Client/vendor management
-- 🔄 **Phase 5**: Invoice system
-- 🔄 **Phase 6**: Document management
-- 🔄 **Phase 7**: Dashboard & analytics
-- 🔄 **Phase 8**: Filtering & search
-- 🔄 **Phase 9**: Advanced features
-- 🔄 **Phase 10**: Multi-user & access control
-- 🔄 **Phase 11**: Polish & UX
-- 🔄 **Phase 12**: Testing & documentation
-- 🔄 **Phase 13**: Production deployment
+- ✅ **Phase 3**: Transaction management
+- ✅ **Phase 4**: Client/vendor management
+- ✅ **Phase 5**: Invoice system with line items
+- ✅ **Phase 6**: Dashboard & analytics with charts
+- ✅ **Phase 7**: Advanced features (filters, export, PDF, toast notifications)
+- 🔄 **Phase 8**: Testing & documentation
+- 🔄 **Phase 9**: Production deployment
 
-## Current Status
+## Troubleshooting
 
-**Phase 1 & 2 Complete!** 🎉
+### Common Issues
 
-- ✅ Project structure with Next.js, TypeScript, and Tailwind CSS
-- ✅ Authentication with NextAuth.js and Google OAuth
-- ✅ Google Sheets API integration layer
-- ✅ Complete data models and TypeScript interfaces
-- ✅ Utility functions and constants
-- ✅ Comprehensive setup guide
+**"Failed to fetch transactions"**
+- Ensure your Google Spreadsheet is shared with your Google account
+- Check that GOOGLE_SHEETS_SPREADSHEET_ID is correct
+- Verify that Google Sheets API is enabled
 
-**What's Working:**
-- Sign in with Google account
-- Protected routes with middleware
-- Google Sheets API client ready to use
+**OAuth Errors**
+- Verify GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are correct
+- Check that authorized redirect URI matches exactly: `http://localhost:3000/api/auth/callback/google`
+- Ensure OAuth consent screen is configured
 
-**Next Steps:**
-You need to complete the Google Cloud setup (see SETUP-GUIDE.md) before we can test the full integration.
+**PDF Download Not Working**
+- Check browser console for errors
+- Ensure invoice has all required data (client, line items)
 
-**Next Development Phase:**
-Phase 3 - Transaction management CRUD operations and UI
+For more detailed troubleshooting, see `SETUP-GUIDE.md`.
 
-## Support
+## Contributing
 
-For issues or questions, refer to the `CLAUDE.md` file for detailed technical documentation (to be created in Phase 12).
+This is a personal/business project. If you'd like to contribute:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
 ## License
 
@@ -253,4 +333,6 @@ ISC
 
 ---
 
-Built with Next.js, TypeScript, and Tailwind CSS
+**Built with** ❤️ **using Next.js, TypeScript, and Tailwind CSS**
+
+For detailed setup instructions, see [SETUP-GUIDE.md](./SETUP-GUIDE.md)
