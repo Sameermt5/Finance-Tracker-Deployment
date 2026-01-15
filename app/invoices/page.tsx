@@ -1,15 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FileText, DollarSign, Clock, AlertCircle } from "lucide-react";
+import { Plus, FileText, DollarSign, Clock, AlertCircle, Download } from "lucide-react";
+import toast from "react-hot-toast";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { InvoiceList } from "@/components/invoices/invoice-list";
 import { InvoiceModal } from "@/components/invoices/invoice-modal";
-import type { Invoice } from "@/types";
+import type { Invoice, Client } from "@/types";
+import { downloadInvoicePDF } from "@/lib/pdf";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingInvoice, setEditingInvoice] = useState<Invoice | null>(null);
@@ -40,8 +43,19 @@ export default function InvoicesPage() {
     }
   };
 
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("/api/clients");
+      const data = await response.json();
+      if (data.success) setClients(data.data);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
   useEffect(() => {
     fetchInvoices();
+    fetchClients();
   }, []);
 
   const handleDelete = async (id: string) => {
@@ -50,9 +64,15 @@ export default function InvoicesPage() {
     try {
       const response = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
       const data = await response.json();
-      if (data.success) await fetchInvoices();
+      if (data.success) {
+        toast.success("Invoice deleted successfully");
+        await fetchInvoices();
+      } else {
+        toast.error(data.error || "Failed to delete invoice");
+      }
     } catch (error) {
       console.error("Error deleting invoice:", error);
+      toast.error("Failed to delete invoice");
     }
   };
 
@@ -67,6 +87,50 @@ export default function InvoicesPage() {
     fetchInvoices();
   };
 
+  const handleExport = async () => {
+    try {
+      const response = await fetch("/api/export/invoices");
+
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `invoices_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success("Invoices exported successfully");
+    } catch (error) {
+      console.error("Error exporting invoices:", error);
+      toast.error("Failed to export invoices");
+    }
+  };
+
+  const handleDownloadPDF = (invoice: Invoice) => {
+    try {
+      const client = clients.find((c) => c.id === invoice.clientId) || null;
+
+      // You can customize business info here or fetch from settings
+      const businessInfo = {
+        name: "Your Business Name",
+        email: "business@example.com",
+        phone: "+1 (555) 123-4567",
+        address: "123 Business St, City, State 12345",
+      };
+
+      downloadInvoicePDF(invoice, client, businessInfo);
+      toast.success("Invoice PDF downloaded successfully");
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+      toast.error("Failed to download invoice PDF");
+    }
+  };
+
   return (
     <AppLayout>
       <div className="space-y-6">
@@ -75,10 +139,16 @@ export default function InvoicesPage() {
             <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
             <p className="text-gray-600 mt-1">Track and manage your invoices</p>
           </div>
-          <Button onClick={() => setShowModal(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Invoice
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={handleExport}>
+              <Download className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button onClick={() => setShowModal(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Invoice
+            </Button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -134,7 +204,12 @@ export default function InvoicesPage() {
               </Button>
             </div>
           ) : (
-            <InvoiceList invoices={invoices} onEdit={handleEdit} onDelete={handleDelete} />
+            <InvoiceList
+              invoices={invoices}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              onDownloadPDF={handleDownloadPDF}
+            />
           )}
         </div>
       </div>

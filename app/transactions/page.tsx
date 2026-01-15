@@ -2,41 +2,75 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search, Filter, Download } from "lucide-react";
+import toast from "react-hot-toast";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { TransactionList } from "@/components/transactions/transaction-list";
 import { TransactionModal } from "@/components/transactions/transaction-modal";
-import type { Transaction } from "@/types";
+import { FilterModal } from "@/components/transactions/filter-modal";
+import type { Transaction, TransactionFilter, Client } from "@/types";
 
 export default function TransactionsPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [activeFilters, setActiveFilters] = useState<TransactionFilter>({});
+  const [clients, setClients] = useState<Client[]>([]);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(
     null
   );
 
-  // Fetch transactions
-  const fetchTransactions = async () => {
+  // Fetch transactions with filters
+  const fetchTransactions = async (filters?: TransactionFilter) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/transactions");
+      const params = new URLSearchParams();
+
+      if (filters?.startDate) params.append("startDate", filters.startDate);
+      if (filters?.endDate) params.append("endDate", filters.endDate);
+      if (filters?.type) params.append("type", filters.type);
+      if (filters?.category) params.append("category", filters.category);
+      if (filters?.paymentMethod) params.append("paymentMethod", filters.paymentMethod);
+      if (filters?.clientId) params.append("clientId", filters.clientId);
+      if (filters?.minAmount) params.append("minAmount", filters.minAmount.toString());
+      if (filters?.maxAmount) params.append("maxAmount", filters.maxAmount.toString());
+
+      const response = await fetch(`/api/transactions?${params.toString()}`);
       const data = await response.json();
 
       if (data.success) {
         setTransactions(data.data);
+      } else {
+        toast.error(data.error || "Failed to fetch transactions");
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
+      toast.error("Failed to fetch transactions");
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch clients
+  const fetchClients = async () => {
+    try {
+      const response = await fetch("/api/clients");
+      const data = await response.json();
+      if (data.success) {
+        setClients(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+    }
+  };
+
   useEffect(() => {
-    fetchTransactions();
+    fetchTransactions(activeFilters);
+    fetchClients();
   }, []);
 
   // Filter transactions by search query
@@ -63,10 +97,14 @@ export default function TransactionsPage() {
       const data = await response.json();
 
       if (data.success) {
-        await fetchTransactions();
+        toast.success("Transaction deleted successfully");
+        await fetchTransactions(activeFilters);
+      } else {
+        toast.error(data.error || "Failed to delete transaction");
       }
     } catch (error) {
       console.error("Error deleting transaction:", error);
+      toast.error("Failed to delete transaction");
     }
   };
 
@@ -80,8 +118,51 @@ export default function TransactionsPage() {
   const handleModalClose = () => {
     setShowModal(false);
     setEditingTransaction(null);
-    fetchTransactions();
+    fetchTransactions(activeFilters);
   };
+
+  // Handle filter apply
+  const handleFilterApply = (filters: TransactionFilter) => {
+    setActiveFilters(filters);
+    fetchTransactions(filters);
+    toast.success("Filters applied successfully");
+  };
+
+  // Handle export
+  const handleExport = async () => {
+    try {
+      const params = new URLSearchParams();
+
+      if (activeFilters?.startDate) params.append("startDate", activeFilters.startDate);
+      if (activeFilters?.endDate) params.append("endDate", activeFilters.endDate);
+      if (activeFilters?.type) params.append("type", activeFilters.type);
+
+      const response = await fetch(`/api/export/transactions?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Export failed");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `transactions_${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      toast.success("Transactions exported successfully");
+    } catch (error) {
+      console.error("Error exporting transactions:", error);
+      toast.error("Failed to export transactions");
+    }
+  };
+
+  // Get active filter count
+  const activeFilterCount = Object.values(activeFilters).filter(
+    (v) => v !== undefined && v !== ""
+  ).length;
 
   return (
     <AppLayout>
@@ -149,15 +230,74 @@ export default function TransactionsPage() {
               className="pl-10"
             />
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setShowFilterModal(true)}>
             <Filter className="h-4 w-4 mr-2" />
             Filters
+            {activeFilterCount > 0 && (
+              <Badge className="ml-2">{activeFilterCount}</Badge>
+            )}
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExport}>
             <Download className="h-4 w-4 mr-2" />
             Export
           </Button>
         </div>
+
+        {/* Active Filters */}
+        {activeFilterCount > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {activeFilters.type && (
+              <Badge variant="outline">
+                Type: {activeFilters.type}
+              </Badge>
+            )}
+            {activeFilters.category && (
+              <Badge variant="outline">
+                Category: {activeFilters.category}
+              </Badge>
+            )}
+            {activeFilters.paymentMethod && (
+              <Badge variant="outline">
+                Payment: {activeFilters.paymentMethod}
+              </Badge>
+            )}
+            {activeFilters.clientId && (
+              <Badge variant="outline">
+                Client: {clients.find((c) => c.id === activeFilters.clientId)?.name}
+              </Badge>
+            )}
+            {activeFilters.startDate && (
+              <Badge variant="outline">
+                From: {activeFilters.startDate}
+              </Badge>
+            )}
+            {activeFilters.endDate && (
+              <Badge variant="outline">
+                To: {activeFilters.endDate}
+              </Badge>
+            )}
+            {activeFilters.minAmount && (
+              <Badge variant="outline">
+                Min: ${activeFilters.minAmount}
+              </Badge>
+            )}
+            {activeFilters.maxAmount && (
+              <Badge variant="outline">
+                Max: ${activeFilters.maxAmount}
+              </Badge>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setActiveFilters({});
+                fetchTransactions({});
+              }}
+            >
+              Clear All
+            </Button>
+          </div>
+        )}
 
         {/* Transaction list */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -194,6 +334,16 @@ export default function TransactionsPage() {
         <TransactionModal
           transaction={editingTransaction}
           onClose={handleModalClose}
+        />
+      )}
+
+      {/* Filter Modal */}
+      {showFilterModal && (
+        <FilterModal
+          onClose={() => setShowFilterModal(false)}
+          onApply={handleFilterApply}
+          clients={clients}
+          currentFilters={activeFilters}
         />
       )}
     </AppLayout>

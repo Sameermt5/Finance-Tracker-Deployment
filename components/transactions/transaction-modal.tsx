@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -117,9 +118,16 @@ export function TransactionModal({ transaction, onClose }: TransactionModalProps
         throw new Error(data.error || "Failed to save transaction");
       }
 
+      toast.success(
+        isEditing
+          ? "Transaction updated successfully"
+          : "Transaction created successfully"
+      );
       onClose();
     } catch (error: any) {
-      setError(error.message || "An error occurred");
+      const errorMessage = error.message || "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

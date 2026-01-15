@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Plus, Trash2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -122,9 +123,14 @@ export function InvoiceModal({ invoice, onClose }: InvoiceModalProps) {
       const data = await response.json();
       if (!data.success) throw new Error(data.error || "Failed to save invoice");
 
+      toast.success(
+        isEditing ? "Invoice updated successfully" : "Invoice created successfully"
+      );
       onClose();
     } catch (error: any) {
-      setError(error.message || "An error occurred");
+      const errorMessage = error.message || "An error occurred";
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

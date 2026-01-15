@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Plus, Search, Mail, Phone, Building } from "lucide-react";
+import toast from "react-hot-toast";
 import { AppLayout } from "@/components/layout/app-layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -62,10 +63,14 @@ export default function ClientsPage() {
       const data = await response.json();
 
       if (data.success) {
+        toast.success("Client deleted successfully");
         await fetchClients();
+      } else {
+        toast.error(data.error || "Failed to delete client");
       }
     } catch (error) {
       console.error("Error deleting client:", error);
+      toast.error("Failed to delete client");
     }
   };
 

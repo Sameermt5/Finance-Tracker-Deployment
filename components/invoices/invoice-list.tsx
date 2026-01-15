@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
@@ -10,6 +10,7 @@ interface InvoiceListProps {
   invoices: Invoice[];
   onEdit: (invoice: Invoice) => void;
   onDelete: (id: string) => void;
+  onDownloadPDF: (invoice: Invoice) => void;
 }
 
 const statusColors = {
@@ -20,7 +21,7 @@ const statusColors = {
   cancelled: "secondary",
 } as const;
 
-export function InvoiceList({ invoices, onEdit, onDelete }: InvoiceListProps) {
+export function InvoiceList({ invoices, onEdit, onDelete, onDownloadPDF }: InvoiceListProps) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full">
@@ -60,6 +61,14 @@ export function InvoiceList({ invoices, onEdit, onDelete }: InvoiceListProps) {
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
                 <div className="flex justify-end gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onDownloadPDF(invoice)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
                   <Button variant="ghost" size="sm" onClick={() => onEdit(invoice)}>
                     <Edit className="h-4 w-4" />
                   </Button>
